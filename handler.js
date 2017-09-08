@@ -14,14 +14,21 @@ module.exports.alert = (event, context, callback) => {
 
   // Loggly pushes JSON which is escaped in a way JSON.parse() cannot handle
   // Remove "known problems" with regex before continuing
-  const knownProblem1 = /"VCAP_APPLICATION":"{.*}",/g;
-  const knownProblem2 = /"CF_INSTANCE_PORTS":"\[.*\]",/g;
+  const knownProblemVcapApplication = /"VCAP_APPLICATION":"{.*}",/g;
+  const knownProblemCfInstancePorts = /"CF_INSTANCE_PORTS":"\[.*\]",/g;
+  const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/;
 
   for (const i in data.recent_hits) {
 
+    if (i >= 20) {
+      // limit to first 20 logs
+      break
+    }
+
     var log = data.recent_hits[i]
-    log = log.replace(knownProblem1, '');
-    log = log.replace(knownProblem2, '');
+    log = log.replace(knownProblemVcapApplication, '');
+    log = log.replace(knownProblemCfInstancePorts, '');
+    log = log.replace(knownProblemEarlyEndOfFile, '"}}');
     
     var logData = null
     try {
@@ -33,7 +40,8 @@ module.exports.alert = (event, context, callback) => {
     if (logData) {
       //console.log('IS JSON', JSON.stringify(logData))
       attachments.push({
-          "text": logData.message
+          "text": logData.message,
+          "color": "#ff0000"
       })
     } else {
       attachments.push({
