@@ -14,9 +14,9 @@ module.exports.alert = (event, context, callback) => {
 
   // Loggly pushes JSON which is escaped in a way JSON.parse() cannot handle
   // Remove "known problems" with regex before continuing
-  const knownProblemVcapApplication = /"VCAP_APPLICATION":"{.*}",/g;
-  const knownProblemCfInstancePorts = /"CF_INSTANCE_PORTS":"\[.*\]",/g;
-  const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/;
+  const knownProblemVcapApplication = /"VCAP_APPLICATION":"{.*}",/
+  const knownProblemCfInstancePorts = /"CF_INSTANCE_PORTS":"\[.*\]",/
+  const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/
 
   for (const i in data.recent_hits) {
 
@@ -34,19 +34,34 @@ module.exports.alert = (event, context, callback) => {
     try {
       logData = JSON.parse(log)      
     } catch (err) {
-      //console.log('NOT JSON', log)
     }
 
     if (logData) {
-      //console.log('IS JSON', JSON.stringify(logData))
+
+      var logText = logData.message
+      var logChannel = logData.channel
+      var logEnv = logData.context.env ? logData.context.env : logData.context.APPLICATION_ENV
+      var logLevel = logData.level_name
+      var logColour = '#000000'
+      if ('ERROR' === logLevel || 'CRITICAL' === logLevel) {
+        logColour = 'danger'
+      } else if ('WARNING' === logLevel || 'NOTICE' === logLevel) {
+        logColour = 'warning'
+      }
+
       attachments.push({
-          "text": logData.message,
-          "color": "#ff0000"
+          "text": logText,
+          "title": logChannel,
+          "footer": logEnv,
+          "color": logColour
       })
+
     } else {
+
       attachments.push({
           "text": log
       })
+
     }
 
   }
