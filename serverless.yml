@@ -3,6 +3,10 @@ service: loggly-slack-alerts-nodejs
 provider:
   name: aws
   runtime: nodejs6.10
+  environment:
+    SLACK_TOKEN: ${file(./env.yaml):SLACK_TOKEN}
+    SLACK_CHANNEL: ${file(./env.yaml):SLACK_CHANNEL}
+    SLACK_USERNAME: ${file(./env.yaml):SLACK_USERNAME}
 
 functions:
   alert:
