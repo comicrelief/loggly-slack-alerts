@@ -18,9 +18,16 @@ module.exports.alert = (event, context, callback) => {
   const knownProblemCfInstancePorts = /"CF_INSTANCE_PORTS":"\[.*\]",/
   const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/
 
+  // Regex fallback for plain text logs
+  const plainTextError = /[^\.,^ ]*\.([^\.,^ ]*)\.([^\.,^ ]*).*: Got error '(.*)%%%%'%%%%$/
+  const plainTextNewlineReplace = '%%%%'
+  const plainTextNewlineReplaceRegex = /%%%%/g
+
+  const logLimit = 20
+
   for (const i in data.recent_hits) {
 
-    if (i >= 20) {
+    if (i >= logLimit) {
       // limit to first 20 logs
       break
     }
@@ -42,7 +49,7 @@ module.exports.alert = (event, context, callback) => {
       var logChannel = logData.channel
       var logEnv = logData.context.env ? logData.context.env : logData.context.APPLICATION_ENV
       var logLevel = logData.level_name
-      var logColour = '#000000'
+      var logColour = '#666666' // grey
       if ('ERROR' === logLevel || 'CRITICAL' === logLevel) {
         logColour = 'danger'
       } else if ('WARNING' === logLevel || 'NOTICE' === logLevel) {
@@ -50,17 +57,44 @@ module.exports.alert = (event, context, callback) => {
       }
 
       attachments.push({
-          "text": logText,
-          "title": logChannel,
-          "footer": logEnv,
-          "color": logColour
+        "text": logText,
+        "title": logChannel,
+        "footer": logEnv,
+        "color": logColour
       })
 
     } else {
 
-      attachments.push({
-          "text": log
-      })
+      var logCheck = log.replace(/\n/g, plainTextNewlineReplace)
+
+      if (plainTextError.test(logCheck)) {
+
+        logCheck = plainTextError.exec(logCheck)
+
+        var logText = logCheck[3].replace(plainTextNewlineReplaceRegex, '\n')
+        var logService = logCheck[2]
+        var logSpace = logCheck[1]
+        var logColour = '#000000' // black
+
+        attachments.push({
+          "text": logText,
+          "title": logService,
+          "footer": logSpace,
+          "color": logColour
+        })
+
+      } else {
+
+        var logNote = "Could not parse"
+        var logColour = "#00ff00" // green
+
+        attachments.push({
+            "text": log,
+            "footer": logNote,
+            "color": logColour
+        })
+
+      }
 
     }
 
