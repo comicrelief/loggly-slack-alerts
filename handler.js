@@ -16,6 +16,9 @@ module.exports.alert = (event, context, callback) => {
   // Remove "known problems" with regex before continuing
   const knownProblemVcapApplication = /"VCAP_APPLICATION":"{.*}",/
   const knownProblemCfInstancePorts = /"CF_INSTANCE_PORTS":"\[.*\]",/
+  const knownProblemFeatures = /"FEATURES":"{.*}",/
+  const knownProblemExceptions = /"exception_trace":[\s\S]*","exception/
+  const knownProblemExceptionsReplacement = '"exception'
   const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/
 
   // Regex fallback for plain text logs
@@ -35,6 +38,8 @@ module.exports.alert = (event, context, callback) => {
     var log = data.recent_hits[i]
     log = log.replace(knownProblemVcapApplication, '');
     log = log.replace(knownProblemCfInstancePorts, '');
+    log = log.replace(knownProblemFeatures, '');
+    log = log.replace(knownProblemExceptions, knownProblemExceptionsReplacement);
     log = log.replace(knownProblemEarlyEndOfFile, '"}}');
     
     var logData = null
