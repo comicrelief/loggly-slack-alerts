@@ -1,0 +1,12 @@
+{
+  "name": "loggly-slack-alerts-nodejs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "@slack/client": "^3.12.0"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": ""
+}
