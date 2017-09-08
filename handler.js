@@ -1,12 +1,15 @@
 'use strict';
 
 module.exports.alert = (event, context, callback) => {
+
+  const body = event.body
+  const data = JSON.parse(body)
+
+  console.log(JSON.stringify(data))
+  
   const response = {
     statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
+    body: 'OK',
   };
 
   callback(null, response);
