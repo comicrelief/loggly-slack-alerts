@@ -2,7 +2,8 @@
 
 // Declare "tempLogHashes" outside of function, to persist in the short-term, persisting log hashes between invocations
 // There is no guarantee of how long this array will persist - when the lamda instance is killed/restarted the array will be emptied
-// This is currently untested, however this page suggests it may/should work: https://www.raymondcamden.com/2017/02/09/serverless-and-persistence
+// Based on idea from: https://www.raymondcamden.com/2017/02/09/serverless-and-persistence
+// Tested and observed functioning as hoped/expected for log events sent 5 mins apart from Loggly
 const tempLogHashes = []
 
 module.exports.alert = (event, context, callback) => {
@@ -173,8 +174,17 @@ module.exports.alert = (event, context, callback) => {
 
   }
 
-  // Send a Slack message containing our header message and per-log attachements
-  slackMessage(headerMessage, attachments)
+  if (0 < attachments.length) {
+    // Send a Slack message containing our header message and per-log attachements
+    if (debug) {
+      console.log('Sending Slack alert!')
+    }
+    slackMessage(headerMessage, attachments)
+  } else {
+    if (debug) {
+      console.log('Skipping Slack alert - no log entries to send (all skipped)!')
+    }
+  }
   
   // Always pass back an "OK" response
   const response = {
