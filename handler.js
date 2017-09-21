@@ -34,8 +34,8 @@ module.exports.alert = (event, context, callback) => {
   const knownProblemFeatures = /"FEATURES":"{.*}",/
   const knownProblemExceptions = /"exception_trace":[\s\S]*","exception/
   const knownProblemExceptionsReplacement = '"exception'
+  const knownProblemTrace = /"trace":"\[.*\]",/
   const knownProblemTraceEndOFile = /,"trace":"\[.*\.\.\./
-  const knownProblemTrace = /,"trace":"\[.*\]/
   const knownProblemMessageJson = /{"message":"({".*})","context":/
   const knownProblemMessageJsonReplacement = function(match, p1) { return '{"message":' + JSON.stringify(p1) + ',"context":' }
   const knownProblemClassEscape = /"class":"([\w\\]*)"/g
@@ -80,8 +80,8 @@ module.exports.alert = (event, context, callback) => {
     log = log.replace(knownProblemCfInstancePorts, '')
     log = log.replace(knownProblemFeatures, '')
     log = log.replace(knownProblemExceptions, knownProblemExceptionsReplacement)
-    log = log.replace(knownProblemTraceEndOFile, '}}')
     log = log.replace(knownProblemTrace, '')
+    log = log.replace(knownProblemTraceEndOFile, '}}')
     log = log.replace(knownProblemMessageJson, knownProblemMessageJsonReplacement)
     log = log.replace(knownProblemClassEscape, knownProblemClassEscapeReplacement)
     log = log.replace(knownProblemEarlyEndOfFile, '"}}')
@@ -167,9 +167,7 @@ module.exports.alert = (event, context, callback) => {
         var logColour = '#00ff00' // green
 
         if (debug) {
-          console.log('Log event: ' + i, 'Unparsed log', JSON.stringify({
-            'log': log
-          }))
+          console.log('Log event: ' + i, 'Unparsed log', log)
         }
 
         attachments.push({
