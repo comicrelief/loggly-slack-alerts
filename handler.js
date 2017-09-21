@@ -176,8 +176,9 @@ function slackMessage(message, attachments) {
   const channel = process.env.SLACK_CHANNEL
   const username = process.env.SLACK_USERNAME
 
-  if (!token || !channel || !username) {
+  if (token === 'undefined' || channel === 'undefined' || username === 'undefined') {
     console.log('Env variable for "SLACK_TOKEN", "SLACK_CHANNEL" & "SLACK_USERNAME" must be set. Slack message sending skipped!')
+    return
   }
 
   const attachmentsJson = JSON.stringify(attachments)
