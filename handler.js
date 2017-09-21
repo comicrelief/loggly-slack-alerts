@@ -36,7 +36,7 @@ module.exports.alert = (event, context, callback) => {
   const knownProblemExceptionsReplacement = '"exception'
   const knownProblemTrace = /"trace":"\[.*\]",/
   const knownProblemTraceEndOFile = /,"trace":"\[.*\.\.\./
-  const knownProblemMessageJson = /{"message":"({".*})","context":/
+  const knownProblemMessageJson = /{"message":"(.*".*)","context":/
   const knownProblemMessageJsonReplacement = function(match, p1) { return '{"message":' + JSON.stringify(p1) + ',"context":' }
   const knownProblemClassEscape = /"class":"([\w\\]*)"/g
   const knownProblemClassEscapeReplacement = function(match, p1) { return '"class":"' + p1.replace(/\\/g, '\\\\') + '"' }
