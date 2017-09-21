@@ -1,5 +1,10 @@
 'use strict'
 
+// Declare "tempLogHashes" outside of function, to persist in the short-term, persisting log hashes between invocations
+// There is no guarantee of how long this array will persist - when the lamda instance is killed/restarted the array will be emptied
+// This is currently untested, however this page suggests it may/should work: https://www.raymondcamden.com/2017/02/09/serverless-and-persistence
+const tempLogHashes = []
+
 module.exports.alert = (event, context, callback) => {
 
   // Set "debug" mode
@@ -47,8 +52,23 @@ module.exports.alert = (event, context, callback) => {
       break
     }
 
-    // Maninpulate "recent_hits" item, using regex to replace known problems with Loggly JSON
+    // Grab current "recent_hits" item
     var log = data.recent_hits[i]
+    var logHash = hashObject(log)
+
+    // Check if log has been alerted before (recently)
+    if (-1 !== tempLogHashes.indexOf(logHash))  {
+      // Log found in our tempLogHashes - skip this log
+      if (debug) {
+        console.log('Log event: ' + i, 'Skipping repeated log: ' + logHash)
+      }
+      continue
+    } else {
+      // Log not found in our tempLogHashes - add this new log to tempLogHashes
+      tempLogHashes.push(logHash)
+    }
+
+    // Maninpulate "recent_hits" item, using regex to replace known problems with Loggly JSON
     log = log.replace(knownProblemVcapApplication, '')
     log = log.replace(knownProblemCfInstancePorts, '')
     log = log.replace(knownProblemFeatures, '')
@@ -172,6 +192,8 @@ function slackMessage(message, attachments) {
 
   const WebClient = require('@slack/client').WebClient
 
+  // Variables populated from serverless
+  // When variable is not defined, "undefined" string is present instead
   const token = process.env.SLACK_TOKEN
   const channel = process.env.SLACK_CHANNEL
   const username = process.env.SLACK_USERNAME
@@ -189,4 +211,27 @@ function slackMessage(message, attachments) {
     'attachments': attachmentsJson
   })
 
+}
+
+/**
+ * Helper function for hashing an object
+ * Method from: http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+ */
+function hashObject(input) {
+
+  if ('object' === typeof(input)) {
+    input = JSON.stringify(input)
+  }
+
+  var hash = 0
+
+  if (0 === input.length) return hash
+
+  for (var i = 0; i < input.length; i++) {
+    var char = input.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32bit integer
+  }
+
+  return hash
 }
