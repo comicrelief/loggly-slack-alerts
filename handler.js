@@ -16,7 +16,7 @@ module.exports.alert = (event, context, callback) => {
   const data = JSON.parse(body)
 
   if (debug) {
-    console.log('Incoming event body...', body)
+    console.log('Incoming event body...', JSON.stringify({'body': event.body}))
   }
 
   // Construct Slack header message
