@@ -1,4 +1,4 @@
-service: loggly-slack-alerts-nodejs
+service: loggly-slack-alerts
 
 provider:
   name: aws

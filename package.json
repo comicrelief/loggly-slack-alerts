@@ -1,5 +1,5 @@
 {
-  "name": "loggly-slack-alerts-nodejs",
+  "name": "loggly-slack-alerts",
   "version": "1.0.0",
   "description": "",
   "main": "handler.js",

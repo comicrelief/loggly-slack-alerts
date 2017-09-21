@@ -1,4 +1,4 @@
-# loggly-slack-alerts-nodejs
+# loggly-slack-alerts
 
 ## Requirements
 
