@@ -34,6 +34,12 @@ module.exports.alert = (event, context, callback) => {
   const knownProblemFeatures = /"FEATURES":"{.*}",/
   const knownProblemExceptions = /"exception_trace":[\s\S]*","exception/
   const knownProblemExceptionsReplacement = '"exception'
+  const knownProblemTraceEndOFile = /,"trace":"\[.*\.\.\./
+  const knownProblemTrace = /,"trace":"\[.*\]/
+  const knownProblemMessageJson = /{"message":"({".*})","context":/
+  const knownProblemMessageJsonReplacement = function(match, p1) { return '{"message":' + JSON.stringify(p1) + ',"context":' }
+  const knownProblemClassEscape = /"class":"([\w\\]*)"/g
+  const knownProblemClassEscapeReplacement = function(match, p1) { return '"class":"' + p1.replace(/\\/g, '\\\\') + '"' }
   const knownProblemEarlyEndOfFile = /\",[^,*]*\.\.\.$/
 
   // Regex fallback for plain text logs
@@ -74,8 +80,12 @@ module.exports.alert = (event, context, callback) => {
     log = log.replace(knownProblemCfInstancePorts, '')
     log = log.replace(knownProblemFeatures, '')
     log = log.replace(knownProblemExceptions, knownProblemExceptionsReplacement)
+    log = log.replace(knownProblemTraceEndOFile, '}}')
+    log = log.replace(knownProblemTrace, '')
+    log = log.replace(knownProblemMessageJson, knownProblemMessageJsonReplacement)
+    log = log.replace(knownProblemClassEscape, knownProblemClassEscapeReplacement)
     log = log.replace(knownProblemEarlyEndOfFile, '"}}')
-    
+
     // Attempt to parse JSON from "recent_hits" item
     // Note: Some recent_hits are JSON formatted, while others are plain text
     // We handle both types here (if logData is set, we're in JSON mode)
