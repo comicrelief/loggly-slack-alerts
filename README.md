@@ -16,6 +16,7 @@
 
 ## Local Testing
 
+    ## populate test-data-json.txt with data from loggly endpoint
     sls invoke local -f alert -p test-data-json.txt
 
 
