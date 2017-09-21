@@ -1,5 +1,19 @@
 # loggly-slack-alerts
 
+## Purpose
+
+Listen for alerts from Loggly and publish to Slack.
+
+Loggly includes an integration with Slack to do this directly, however this integration has several deficiencies:
+* It includes "@channel" which forces all users to be alerted (unless they mute the channel)
+* All data for all log entries matching the alert are dumped into the alert message - in the case of JSON data it would be better to summarise only the key attributes of the log entry (i.e. message, etc)
+* Log entries matching the alert are repeated in later alerts
+
+This simple script attempts to format the Slack messages in a friendlier way. Key information is extracted from log messages and an attempt is made to skip repeated messages.
+
+The JSON log entries sent by Loggly are sent escaped inside a JSON container. Once extracted, the log entries are rarely well-formed JSON. Most of the complexity in this script are attempts to remove invalid objects/strings in the JSON before attempting to parse is.
+
+
 ## Requirements
 
 * Serverless (https://serverless.com/framework/docs/getting-started/)
@@ -26,6 +40,7 @@
     export AWS_ACCESS_KEY_ID=<your-key-here>
     export AWS_SECRET_ACCESS_KEY=<your-secret-key-here>
     sls deploy -v
+
 
 ## Loggly Setup
 
