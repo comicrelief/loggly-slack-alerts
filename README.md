@@ -25,7 +25,8 @@ The JSON log entries sent by Loggly are sent escaped inside a JSON container. On
 
     npm install
     cp env.yaml.sample env.yaml
-    ## replace env.yaml keys with valid values
+    ## replace env.yaml Slack keys with valid values:
+    ## SLACK_TOKEN, SLACK_CHANNEL, SLACK_USERNAME
 
 
 ## Local Testing
@@ -51,6 +52,10 @@ The JSON log entries sent by Loggly are sent escaped inside a JSON container. On
 
     ## perform serverless deploy
     sls deploy -s prod
+
+### Additional stages
+
+Additonal stages can be created with different env data to target different Slack channels.
 
 
 ## Loggly Setup
