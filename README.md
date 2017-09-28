@@ -36,10 +36,21 @@ The JSON log entries sent by Loggly are sent escaped inside a JSON container. On
 
 ## Deploy
 
+### Setup AWS keys
+
     ## obtain aws access key pair
     export AWS_ACCESS_KEY_ID=<your-key-here>
     export AWS_SECRET_ACCESS_KEY=<your-secret-key-here>
-    sls deploy -v
+
+### Dev stage (used in #frost-logs-testing)
+
+    ## perform serverless deploy
+    sls deploy -s dev
+
+### Prod stage (used in #frost-loggly)
+
+    ## perform serverless deploy
+    sls deploy -s prod
 
 
 ## Loggly Setup
